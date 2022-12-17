@@ -10,22 +10,26 @@ router = APIRouter(prefix="/recipes", tags=["Recipes"])
 @router.get("/", response_model=List[schemas.RecipesOut])
 def get_recipes(
     db: Session = Depends(get_db),
-    limit: int = 5,
+    limit: int | None = None,
     skip: int = 0,
     search: str | None = "",
 ):
 
-    recipes = db.query(models.Recipe).filter(models.Recipe.title.contains(search))
+    recipes = (
+        db.query(models.Recipe)
+        .filter(models.Recipe.title.contains(search))
+        .order_by(models.Recipe.created_at.desc())
+    )
 
     results = recipes.limit(limit).offset(skip).all()
 
     return results
 
 
-@router.get("/{id}", response_model=List[schemas.RecipesOut])
+@router.get("/{id}", response_model=schemas.RecipesOut)
 def get_recipe(id: int, db: Session = Depends(get_db)):
 
-    recipe = db.query(models.Recipe).filter(models.Recipe.id == id)
+    recipe = db.query(models.Recipe).filter(models.Recipe.id == id).first()
 
     if recipe is None:
         raise HTTPException(
@@ -41,7 +45,7 @@ def get_recipe(id: int, db: Session = Depends(get_db)):
 )
 def create_recipe(recipe: schemas.RecipeCreate, db: Session = Depends(get_db)):
 
-    new_recipe = models.Recipe(**recipe.dect())
+    new_recipe = models.Recipe(**recipe.dict())
     db.add(new_recipe)
     db.commit()
     db.refresh(new_recipe)

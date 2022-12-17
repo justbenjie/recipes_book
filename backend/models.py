@@ -11,7 +11,10 @@ class Recipe(Base):
     title = Column(String, nullable=False)
     ingredients = Column(String, nullable=False)
     directions = Column(String, nullable=False)
-    calories = Column(Integer, nullable=False)
+    # calories = Column(Integer, nullable=False)
     created_at = Column(
-        TIMESTAMP(timezone=True), server_default=text("now()"), nullable=False
+        TIMESTAMP(timezone=True),
+        server_default=text("now()"),
+        onupdate=text("now()"),
+        nullable=False,
     )

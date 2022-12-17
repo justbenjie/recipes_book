@@ -3,15 +3,19 @@ from pydantic import BaseModel, Field
 
 
 class RecipeBase(BaseModel):
-    title: str = Field(..., max_length=30)
-    ingredients: str = Field(...)
-    directions: str = Field(...)
-    calories: float = Field(..., ge=0)
+    title: str
+    ingredients: str
+    directions: str
+    # calories: float
 
 
-class RecipeCreate(BaseModel):
+class RecipeCreate(RecipeBase):
     pass
 
 
 class RecipesOut(RecipeBase):
+    id: int
     created_at: datetime
+
+    class Config:
+        orm_mode = True
